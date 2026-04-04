@@ -20,28 +20,42 @@ Aspiring SOC Analyst with hands-on experience in network traffic analysis, SIEM 
 
 ### 🔍 Wireshark Analysis
 
-Network traffic investigations including malware detection and suspicious DNS behavior.
+* [Case 01 — Malware Beaconing Detection](./01-wireshark-analysis/case-01-malware-beaconing/)
+* [Case 02 — HTTP Malware Analysis](./01-wireshark-analysis/case-02-http-malware/)
+
+---
 
 ### 📊 Splunk SIEM Lab
 
-Log analysis, detection queries, and dashboard creation.
+* (Coming soon)
+
+---
 
 ### 🚨 Threat Detection Scenarios
 
-Real-world attack simulations and detection techniques.
+* (Coming soon)
+
+---
 
 ### 🛡️ Incident Response Reports
 
-Structured reports based on security investigations.
+* (Coming soon)
+
+---
 
 ### 🎣 Phishing Analysis
 
-Email threat investigation and analysis.
+* (Coming soon)
+
+---
 
 ### 💻 Endpoint Analysis
 
-System-level investigation and monitoring.
+* (Coming soon)
+
+---
 
 ### 🌐 Threat Intelligence
 
-IOC enrichment and validation using open-source tools.
+* (Coming soon)
+
