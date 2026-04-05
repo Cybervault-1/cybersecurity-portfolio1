@@ -1,25 +1,27 @@
-## Executive Summary
-A brute force attack was detected against the admin account at SecureCore Ltd.
-The attacker at IP 192.168.1.77 made 33 failed login attempts before 
-successfully breaching the account and moving laterally across three critical 
-servers including the domain controller, file server and backup server.
+## Summary
+An attacker repeatedly tried to break into the admin account at SecureCore 
+Ltd by guessing passwords over and over until one worked. After getting in, 
+they came back five days later and used the same account to access three 
+critical servers — the domain controller, file server and backup server. 
+This was a serious breach that could have been prevented with basic security 
+controls that were not in place.
 
 ---
 
 ## Scenario
-It is Monday morning at SecureCore Ltd. The SOC team receives an alert 
-indicating multiple failed login attempts on the domain controller DC01. 
-A SOC analyst is tasked with investigating whether this is a user who forgot 
-their password or an active brute force attack against a privileged account.
+It is Monday morning at SecureCore Ltd. The SOC team gets an alert about 
+multiple failed login attempts hitting the domain controller DC01. As the 
+analyst on duty, the task is to figure out whether this is just a user who 
+forgot their password or something more serious.
 
-The analyst has access to Windows authentication logs ingested into Splunk 
-and must determine the full scope of the attack, identify the source, confirm 
-whether the attack succeeded, and trace any post-breach activity.
+The investigation uses Windows authentication logs already loaded into 
+Splunk to find out what happened, who did it, whether they got in, and 
+what they did after.
 
 ## Objective
-Investigate suspicious authentication activity using Splunk, identify the 
-attacking source, determine whether the attack succeeded, and trace any 
-post-breach lateral movement across the network.
+Use Splunk to investigate the suspicious login activity, find the source 
+of the attack, confirm if the attacker succeeded, trace where they went 
+after getting in, and write up the findings clearly.
 
 ## Tools Used
 - Splunk Enterprise
@@ -35,59 +37,59 @@ post-breach lateral movement across the network.
 ---
 
 ## Background — What is a Brute Force Attack?
-A brute force attack is when an attacker repeatedly attempts different 
-passwords against a single account until one succeeds. Key characteristics:
+A brute force attack is when someone uses a tool to automatically try 
+hundreds of passwords against one account until something works. It is 
+not sophisticated — it is just persistence. But it works when there are 
+no controls to stop it.
 
-- Same account targeted repeatedly
-- Many failed attempts in a short time window
-- Often followed by a successful login
-- Privileged accounts like admin are the primary target
+The main signs that separate brute force from a user just mistyping 
+their password:
 
-The danger of brute force attacks is that once the attacker succeeds, 
-they have legitimate credentials — making their activity harder to 
-distinguish from normal user behaviour.
+| | Normal user mistake | Brute force attack |
+|--|--------------------|--------------------|
+| Number of failures | 1 to 3 | 10 or more |
+| Speed | Minutes between attempts | Seconds between attempts |
+| Source | Their own machine | One external IP |
+| Target | Their own account | A specific privileged account |
+
+Once the attacker gets in they have real credentials — so everything 
+they do afterwards looks like normal user activity, which makes it 
+harder to spot.
 
 ---
 
 ## Investigation Steps
 
 ### Step 1 — Load and Review Raw Logs
-The dataset was loaded into Splunk and raw logs were reviewed first to 
-understand the full scope of activity before running any detection queries.
 
 **Query used:**
 ```
 index=main
 ```
 
-**Why this query:**
-Always start with raw unfiltered data. This gives you a complete picture 
-of everything in the dataset before narrowing your focus. Running targeted 
-queries too early can cause you to miss important context.
+**What this does and why:**
+This pulls everything in the dataset without any filters. Before doing 
+anything else it is important to see the full picture — how many events 
+are there, what fields exist, and does anything jump out straight away. 
+Going straight to specific queries too early can cause you to miss 
+important context.
 
-**What to look for:**
-Total event count, field names available, spread of users and IP addresses, 
-any immediately obvious patterns.
+One of the first things to check is the ratio of failed to successful 
+logins. A healthy network has very few failures. If failures are making 
+up most of the events something is wrong.
 
-**Finding:**
-124 total events were present across multiple users and IP addresses.
-Initial review of the raw logs immediately revealed a high concentration 
-of failed login activity. The left panel showed user field with 8 unique 
-values and status field with only 2 values — failed and success — 
-providing a quick overview of the authentication landscape.
+**What was found:**
+124 events in total. Clicking the status field on the left showed 38 
+failed logins versus 12 successful ones — a 76% failure rate which is 
+way above normal. The screenshot below shows the full raw dataset as it 
+appeared in Splunk with all fields correctly loaded.
 
-![Figure 1 — Raw log overview showing 124 events across all users and 
-IP addresses](screenshots/01-raw-logs.png)
-
-**Figure 1** confirms the dataset was successfully loaded into Splunk 
-with all fields correctly parsed including time, user, src_ip, dest_ip, 
-status and description.
+![Raw log overview showing 124 total events across all users and IP 
+addresses](screenshots/01-raw-logs.png)
 
 ---
 
 ### Step 2 — Identify the Most Targeted Account
-Failed logins were isolated and grouped by user to identify which account 
-was being targeted the most.
 
 **Query used:**
 ```
@@ -96,18 +98,17 @@ index=main status=failed
 | sort -count
 ```
 
-**Why this query:**
-`status=failed` filters only failed login events. The `stats count by user` 
-command groups and counts failures per user. `sort -count` puts the highest 
-number first so the most targeted account appears immediately at the top. 
-This query is the first step in any authentication investigation.
+**What this does and why:**
+This filters to only failed logins and counts how many each user got, 
+putting the highest number at the top. The point here is to see whether 
+failures are spread evenly across users — which would suggest normal 
+mistakes — or piled up on one account, which would suggest someone is 
+deliberately targeting that account.
 
-**What pattern to expect:**
-In a brute force attack you expect one account to have significantly more 
-failures than all others combined. Normal failed logins are spread evenly 
-across users — 1 to 3 failures each from people mistyping passwords.
+In a brute force attack the targeted account stands out immediately 
+because it has dramatically more failures than everyone else.
 
-**Finding:**
+**What was found:**
 | User | Failed Attempts |
 |------|----------------|
 | admin | 33 |
@@ -115,23 +116,17 @@ across users — 1 to 3 failures each from people mistyping passwords.
 | user2 | 2 |
 | mwilliams | 1 |
 
-The admin account had 33 failed attempts compared to a maximum of 2 for 
-any other user. This extreme concentration on a single privileged account 
-is a definitive indicator of a targeted brute force attack rather than 
-random user mistakes.
+The admin account had 33 failures. Every other account had 2 or less. 
+That gap is too large to be a coincidence. The screenshot below shows 
+this clearly — the bar next to admin is far longer than anything else 
+on the chart, making the targeting obvious at a glance.
 
-![Figure 2 — Failed login count grouped by user showing admin with 33 
-failures compared to maximum 2 for all other accounts](screenshots/02-failed-logins-by-user.png)
-
-**Figure 2** visually demonstrates the disproportionate targeting of the 
-admin account. The bar chart makes the anomaly immediately obvious — 
-admin's bar dwarfs every other account.
+![Failed login count per user showing admin as the clear primary 
+target with 33 failures](screenshots/02-failed-logins-by-user.png)
 
 ---
 
 ### Step 3 — Identify the Attacking IP Address
-Failed login attempts against the admin account were filtered and grouped 
-by source IP to identify the origin of the attack.
 
 **Query used:**
 ```
@@ -140,41 +135,32 @@ index=main user=admin status=failed
 | sort -count
 ```
 
-**Why this query:**
-Adding `user=admin` narrows the search specifically to admin account 
-failures. Grouping by `src_ip` reveals whether the attack is coming from 
-one location — a targeted attack — or many locations — a distributed attack. 
-This distinction affects the remediation response.
+**What this does and why:**
+This narrows down to only failed logins against the admin account and 
+groups them by where they came from. Knowing whether the attack is 
+coming from one place or many changes how you respond. One IP means 
+a single attacker using an automated tool. Multiple IPs could mean 
+a botnet or a group working together.
 
-**What pattern to expect:**
-A classic brute force attack comes from a single IP using an automated 
-tool. Multiple IPs suggest either a botnet or multiple coordinated attackers.
-
-**Finding:**
+**What was found:**
 | Source IP | Failed Attempts |
 |-----------|----------------|
 | 192.168.1.10 | 30 |
 | 192.168.1.99 | 3 |
 
-Two suspicious IP addresses were identified targeting the admin account. 
-192.168.1.10 was the primary attacker with 30 failed attempts. 
-192.168.1.99 appeared separately with 3 unusual login attempts described 
-as "Unknown login attempt" — suggesting a second actor or different 
-attack tool.
+Two IPs showed up. 192.168.1.10 was responsible for 30 of the 33 
+failures — clearly the main attacker. Then 192.168.1.99 appeared 
+with 3 attempts that were described as "Unknown login attempt" — 
+a different description from the standard Windows failure message, 
+which suggests this second IP was using a different tool or method. 
+The screenshot below shows both IPs and their attempt counts.
 
-![Figure 3 — Failed login attempts against admin account grouped by 
-source IP confirming two attacking IPs](screenshots/03-attacking-ip.png)
-
-**Figure 3** confirms that 192.168.1.10 was the primary attacker 
-responsible for 30 of the 33 failed attempts, with a secondary suspicious 
-IP 192.168.1.99 contributing 3 additional unknown attempts.
+![Failed login attempts against admin grouped by source IP showing 
+two suspicious sources](screenshots/03-attacking-ip.png)
 
 ---
 
 ### Step 4 — Reconstruct the Full Attack Timeline
-All admin account activity was retrieved and sorted chronologically to 
-reconstruct the complete sequence of events from first attack to final 
-lateral movement.
 
 **Query used:**
 ```
@@ -183,47 +169,36 @@ index=main user=admin
 | sort time
 ```
 
-**Why this query:**
-Removing the status filter shows ALL admin activity — both failed and 
-successful. The `table` command presents results in a clean readable 
-format. Sorting by time reconstructs the chronological story of the 
-attack from beginning to end.
+**What this does and why:**
+This pulls all admin account activity — both failures and successes — 
+in time order. Removing the status filter is important here because 
+you need to see everything, not just the failures. The moment failures 
+turn into a success is the breach point. What happens in the dest_ip 
+column after that tells you where the attacker went.
 
-**What pattern to expect:**
-A successful brute force attack shows a block of failures followed by 
-a success event. After success, further logins to different destination 
-IPs indicate lateral movement.
+**What was found:**
+Two separate attack phases showed up across different dates.
 
-**Finding:**
+On April 1st, failures started arriving from 192.168.1.10 at 10:00:01 
+— one every few seconds, which is too fast to be manual. After 10 
+failures the admin account was successfully accessed at 10:01:00. Then 
+29 minutes later the second IP 192.168.1.99 showed up with its 3 
+unknown attempts — arriving only after the first attacker had already 
+got in, which looks like the two were working together.
 
-**Phase 1 — Initial Brute Force (April 1st, 10:00 AM)**
-192.168.1.10 began attacking the admin account with repeated failed 
-attempts every 4 to 6 seconds. After 10 consecutive failures the 
-attacker successfully authenticated at 10:01:00. The entire attack 
-from first attempt to breach lasted approximately 60 seconds.
+Five days later on April 6th the same attacker came back, launched 
+another wave of attempts, and got in again at 10:00:03 — meaning 
+whatever was done to fix things the first time was not enough.
 
-**Phase 2 — Second Actor (April 1st, 10:30 AM)**
-192.168.1.99 appeared 29 minutes after the initial breach making exactly 
-3 attempts described as "Unknown login attempt". This timing and behaviour 
-suggests possible credential sharing between two coordinated attackers.
+The screenshot below shows the full timeline from first failure to 
+lateral movement across servers.
 
-**Phase 3 — Return Attack (April 6th, 09:58 AM)**
-192.168.1.10 returned 5 days later launching another wave of brute force 
-attempts before successfully breaching the admin account again at 10:00:03.
-
-![Figure 4 — Complete attack timeline showing all admin account activity 
-from first failure through lateral movement across multiple 
-servers](screenshots/04-full-attack-timeline.png)
-
-**Figure 4** shows the complete chronological story of the attack — the 
-pattern of failures followed by success is clearly visible, confirming 
-the brute force methodology.
+![Full admin account timeline showing failures, breach points and 
+post-breach server access](screenshots/04-full-attack-timeline.png)
 
 ---
 
 ### Step 5 — Investigate the Second IP Address
-The second suspicious IP address was investigated separately to understand 
-its behaviour and possible relationship to the primary attacker.
 
 **Query used:**
 ```
@@ -232,35 +207,27 @@ index=main src_ip=192.168.1.99
 | sort time
 ```
 
-**Why this query:**
-Isolating a specific IP address shows everything that IP did in the 
-environment. This helps determine whether 192.168.1.99 was an independent 
-attacker, a coordinated partner, or a false positive.
+**What this does and why:**
+This pulls everything that 192.168.1.99 did in the environment. The 
+goal is to understand if this IP was acting independently or in 
+coordination with the primary attacker. The timing is the key thing 
+to look at here.
 
-**What pattern to expect:**
-If coordinated with 192.168.1.10, activity from 192.168.1.99 should 
-appear shortly after the initial breach — suggesting credential sharing 
-or communication between attackers.
+**What was found:**
+192.168.1.99 made exactly 3 attempts within 20 seconds — all targeting 
+admin, all on April 1st at 10:30, which is 29 minutes after 192.168.1.10 
+already successfully got in. It made a small number of attempts, stopped, 
+and never came back. The fact that it only appeared after the breach 
+and used a different attempt description strongly suggests it was 
+testing credentials passed to it by the first attacker. The screenshot 
+below shows the three attempts and their timing.
 
-**Finding:**
-192.168.1.99 made exactly 3 failed attempts against the admin account 
-within a 20 second window on April 1st at 10:30 — exactly 29 minutes 
-after 192.168.1.10 successfully breached the account. The description 
-"Unknown login attempt" differs from standard Windows failed login 
-messages, suggesting a different tool or protocol was used.
-
-![Figure 5 — Second IP investigation showing 3 unknown login attempts 
-29 minutes after the initial breach](screenshots/05-second-ip-investigation.png)
-
-**Figure 5** highlights the suspicious timing and unusual description 
-of 192.168.1.99's activity, supporting the theory of a coordinated 
-two-actor attack.
+![Second IP activity showing 3 unknown login attempts arriving 29 
+minutes after the confirmed breach](screenshots/05-second-ip-investigation.png)
 
 ---
 
 ### Step 6 — Trace Lateral Movement
-Successful admin logins were isolated and sorted by time to determine 
-whether the attacker moved across the network after the initial breach.
 
 **Query used:**
 ```
@@ -269,56 +236,49 @@ index=main user=admin status=success
 | sort time
 ```
 
-**Why this query:**
-Filtering for successful logins only shows where the attacker actually 
-went after gaining access. Multiple destination IPs in a short time 
-window indicates lateral movement — the attacker using compromised 
-credentials to access additional systems.
+**What this does and why:**
+This looks only at successful admin logins and maps them to destination 
+IPs in time order. A normal user logs into one or two consistent systems. 
+An attacker with stolen credentials jumps between servers quickly — 
+especially the ones that matter most like domain controllers, file 
+servers and backup servers.
 
-**What pattern to expect:**
-A normal user logs into one or two systems consistently. An attacker 
-with stolen admin credentials will access multiple different servers 
-in rapid succession — especially high value targets like file servers 
-and backup servers.
+**What was found:**
+After getting back into the admin account on April 6th the attacker 
+moved across the network hitting three different servers within 47 minutes:
 
-**Finding:**
-After breaching the admin account the attacker moved laterally across 
-the network accessing multiple critical systems:
+| Time | Server IP | What it is |
+|------|-----------|------------|
+| 10:00:03 | 10.0.0.5 | Domain Controller |
+| 10:30:00 | 10.0.0.5 | Domain Controller again |
+| 10:45:00 | 10.0.0.20 | File Server |
+| 10:47:00 | 10.0.0.30 | Backup Server |
 
-| Time | Destination IP | Server Role |
-|------|---------------|-------------|
-| 2026-04-01 10:01:00 | 10.0.0.5 | Domain Controller |
-| 2026-04-06 10:00:03 | 10.0.0.5 | Domain Controller |
-| 2026-04-06 10:30:00 | 10.0.0.5 | Domain Controller |
-| 2026-04-06 10:45:00 | 10.0.0.20 | File Server |
-| 2026-04-06 10:47:00 | 10.0.0.30 | Backup Server |
+Getting into the domain controller is the worst possible outcome — 
+whoever controls that controls everything on the network. Getting into 
+the backup server is also critical because attackers destroy backups 
+before launching ransomware to make sure the victim cannot recover. 
+The screenshot below shows all five successful logins and the servers 
+accessed.
 
-Access to the backup server is particularly critical — attackers 
-commonly destroy backups to prevent recovery during ransomware attacks.
-
-![Figure 6 — Lateral movement showing attacker accessing domain 
-controller, file server and backup server using compromised admin 
-credentials](screenshots/06-lateral-movement.png)
-
-**Figure 6** confirms lateral movement across three different servers 
-within 47 minutes of the second breach, demonstrating the attacker's 
-intent to expand their foothold across the network.
+![Successful admin logins showing lateral movement across domain 
+controller, file server and backup server](screenshots/06-lateral-movement.png)
 
 ---
 
-## Attack Timeline
+## 🕒 Attack Timeline
 
-| Time | Event |
-|------|-------|
-| 2026-04-01 10:00:01 | First brute force attempt from 192.168.1.10 |
-| 2026-04-01 10:00:45 | 10th consecutive failed attempt |
-| 2026-04-01 10:01:00 | ⚠️ Admin account breached — first success |
-| 2026-04-01 10:30:00 | Second IP 192.168.1.99 appears — 3 unknown attempts |
-| 2026-04-06 09:58:01 | Attacker returns — new wave of brute force begins |
-| 2026-04-06 10:00:03 | ⚠️ Admin account breached again |
-| 2026-04-06 10:30:00 | Attacker accesses domain controller |
-| 2026-04-06 10:45:00 | Attacker accesses file server |
-| 2026-04-06 10:47:00 | ⚠️ Attacker accesses backup server — critical |
+| Time | What happened |
+|------|--------------|
+| 2026-04-01 10:00:01 | First failed login attempt from 192.168.1.10 — automated attempts begin every few seconds |
+| 2026-04-01 10:00:45 | 10th consecutive failure — attack continues because there is no lockout policy to stop it |
+| 2026-04-01 10:01:00 | ⚠️ Admin account breached — attacker gets in for the first time |
+| 2026-04-01 10:30:00 | Second IP 192.168.1.99 shows up with 3 unknown attempts — 29 minutes after the breach |
+| 2026-04-06 09:58:01 | Attacker returns five days later — starts another round of attempts |
+| 2026-04-06 10:00:03 | ⚠️ Admin account breached again — original fix was not enough |
+| 2026-04-06 10:30:00 | Attacker logs into domain controller |
+| 2026-04-06 10:45:00 | Attacker logs into file server |
+| 2026-04-06 10:47:00 | ⚠️ Attacker logs into backup server — ransomware risk now critical |
 
 ---
 
@@ -335,51 +295,69 @@ intent to expand their foothold across the network.
 | Attack returned | 2026-04-06 09:58:01 |
 | Servers accessed | 10.0.0.5, 10.0.0.20, 10.0.0.30 |
 | Attack type | Brute force with lateral movement |
-| Weakness exploited | No account lockout policy |
+| Weakness exploited | No account lockout policy, no MFA |
+| Severity | Critical |
 
 ---
 
 ## MITRE ATT&CK Mapping
 
-| Technique | ID | Explanation |
-|-----------|-----|-------------|
-| Brute Force | T1110.001 | Attacker repeatedly guessed the admin password using automated attempts until gaining access |
-| Valid Accounts | T1078 | After succeeding, the attacker used legitimate admin credentials making their activity blend in with normal traffic |
-| Lateral Movement via Remote Services | T1021 | Attacker used compromised admin credentials to authenticate to multiple servers across the network |
-| Credential Access | T1110 | The core technique — systematically attempting passwords to crack account access |
+| Technique | ID | What was observed |
+|-----------|-----|------------------|
+| Brute Force — Password Guessing | T1110.001 | An automated tool made 33 repeated password attempts against the admin account — only possible because there was no lockout policy to block it |
+| Valid Accounts | T1078 | After getting the password right the attacker used real admin credentials — meaning their activity looked like normal authorised logins to anyone watching |
+| Lateral Movement via Remote Services | T1021 | The stolen admin credentials were used to log into three different servers across the network within 47 minutes of the second breach |
+| Credential Access | T1110 | The speed and volume of attempts — one every few seconds — confirms an automated credential access tool was used rather than someone guessing manually |
 
 ---
 
 ## Conclusion
-This investigation confirmed a successful brute force attack against the 
-admin account at SecureCore Ltd. The attacker at 192.168.1.10 exploited 
-the absence of an account lockout policy — a fundamental security 
-weakness — to make 33 repeated authentication attempts without being 
-blocked.
+This was a straightforward brute force attack that worked because the 
+basics were not in place. The attacker did not do anything clever — they 
+just kept trying passwords until one worked. The only reason they 
+succeeded is that there was nothing to stop them.
 
-The attack succeeded on two separate occasions five days apart, suggesting 
-the attacker retained access and returned deliberately. Following each 
-breach, the attacker moved laterally across the network accessing the 
-domain controller, file server and critically the backup server — 
-representing a critical severity incident with potential for complete 
-network compromise, data theft and ransomware deployment.
+An account lockout policy set to 5 attempts would have ended this attack 
+before it started. Multi-factor authentication would have meant a correct 
+password still was not enough to get in. Neither was in place.
 
-The appearance of a second IP address 192.168.1.99 with unusual login 
-attempt descriptions 29 minutes after the initial breach raises the 
-possibility of a coordinated two-actor attack involving credential sharing.
+What made this worse is that the attacker came back five days later and 
+got in again through the same route — meaning the first incident was 
+never properly fixed. By the time the second breach was detected the 
+attacker had already reached the domain controller and the backup server, 
+which puts the entire organisation at risk.
 
-The primary weakness exploited in this incident was the absence of an 
-account lockout policy, which would have blocked the attack after 3 to 5 
-failed attempts — preventing the breach entirely.
+This needs to be treated as a full network compromise until a forensic 
+investigation confirms exactly what was accessed and whether anything 
+was changed or stolen.
+
+---
+
+## 🔑 Key Takeaways
+
+- A lockout policy after 5 failed attempts would have stopped this 
+  entirely — it is one of the simplest controls to put in place
+- Brute force is easy to spot in logs once you know what to look for — 
+  rapid failures from one IP against one account is a clear pattern
+- The moment an attacker gets a successful login the severity jumps 
+  immediately — this is no longer just an attempt, it is a breach
+- One compromised account reached three critical servers in under an 
+  hour — lateral movement happens fast
+- Coming back five days later and getting in again shows the first 
+  response was incomplete — always verify the full attack path is closed
+- Backup server access means ransomware is a real possibility — 
+  verify backup integrity immediately when this happens
+
+---
 
 ## Recommended Actions
-- Immediately disable and reset the admin account credentials
+- Disable and reset the admin account credentials immediately
 - Block 192.168.1.10 and 192.168.1.99 at the firewall
-- Investigate all activity on 10.0.0.20 and 10.0.0.30 for signs of 
-  data theft or tampering
-- Implement account lockout policy — lock after 5 failed attempts
-- Enable multi-factor authentication on all privileged accounts
-- Review backup server integrity immediately
-- Investigate the relationship between 192.168.1.10 and 192.168.1.99
-- Enable real-time alerting for more than 5 failed logins against any 
-  single account within 60 seconds
+- Check all activity on 10.0.0.20 and 10.0.0.30 for signs of 
+  data access or tampering
+- Verify the backup server has not been modified or deleted from
+- Set up account lockout after 5 failed attempts
+- Turn on multi-factor authentication for all privileged accounts
+- Set up a SIEM alert for more than 5 failed logins against any 
+  account within 60 seconds
+- Run a full forensic review of all servers the attacker accessed
