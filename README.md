@@ -27,8 +27,7 @@ Aspiring SOC Analyst with hands-on experience in network traffic analysis, SIEM 
 
 ### 📊 Splunk SIEM Lab
 
-* (Coming soon)
-
+- [Case 01 — Brute Force Attack Detection](02-splunk-siem-lab/case-01-brute-force-detection/README.md)
 ---
 
 ### 🚨 Threat Detection Scenarios
