@@ -1,29 +1,31 @@
-## Summary
-A password spray attack was detected against SecureCore Ltd targeting 9 user 
-accounts simultaneously from a single IP address 192.168.1.77. The attacker 
-deliberately stayed under the account lockout threshold — attempting only 2 
-failures per account. The attack succeeded against jsmith whose weak seasonal 
-password Summer2026! was correctly guessed, resulting in lateral movement 
-across 5 critical servers including the domain controller and backup server.
+## Executive Summary
+An attacker used an automated tool to try one common password against every 
+user account at SecureCore Ltd. By keeping the number of attempts low per 
+account they stayed under the lockout threshold and avoided triggering any 
+alerts. The attack worked against one account whose password matched the 
+guess. After getting in the attacker moved across five internal servers 
+including the domain controller and backup server within just over an hour.
 
 ---
 
 ## Scenario
-It is Friday afternoon at SecureCore Ltd. The SOC dashboard shows an unusual 
-pattern — failed login attempts are appearing across 8 different user accounts 
-almost simultaneously. Unlike a normal brute force attack, no single account 
-has enough failures to trigger an account lockout alert. A SOC analyst is 
-tasked with investigating whether this is a coordinated attack or a system 
-malfunction.
+It is Friday afternoon at SecureCore Ltd. The SOC dashboard starts showing 
+failed login attempts appearing across several different user accounts at 
+almost exactly the same time. No single account has enough failures to 
+trigger a lockout alert which makes this easy to miss. As the analyst on 
+duty the task is to work out whether this is a real attack or just a 
+coincidence and if it is an attack to find out which account was hit and 
+what happened after.
 
-The analyst has access to Windows authentication logs ingested into Splunk 
-and must prove this is a password spray attack, identify the compromised 
-account, and trace all post-breach activity.
+The investigation uses Windows authentication logs loaded into Splunk to 
+prove the spray pattern, identify the compromised account and trace the 
+attacker's movement through the network.
 
 ## Objective
-Investigate suspicious authentication activity using Splunk, identify the 
-password spray pattern, determine which account was compromised, trace 
-post-breach lateral movement, and document all findings professionally.
+Use Splunk to investigate the suspicious authentication pattern, prove this 
+is a password spray attack, identify which account was compromised, trace 
+the post-breach lateral movement, and produce a clear professional report 
+of the findings.
 
 ## Tools Used
 - Splunk Enterprise
@@ -39,130 +41,104 @@ post-breach lateral movement, and document all findings professionally.
 ---
 
 ## Background — Brute Force vs Password Spraying
-
-Understanding the difference between these two attacks is critical for 
-correct detection and classification:
+These two attacks look very different in logs and require different detection 
+approaches. Understanding the difference is important for getting the 
+classification right.
 
 | | Brute Force | Password Spraying |
 |--|-------------|-------------------|
-| **Approach** | Many passwords against one account | One password against many accounts |
-| **Speed** | Fast and aggressive | Slow and deliberate |
-| **Detection difficulty** | Easy — one account spikes | Hard — spread across many accounts |
-| **Lockout risk** | High — triggers lockout quickly | Low — stays under lockout threshold |
-| **Why attackers use it** | When targeting a specific person | To avoid triggering security alerts |
+| How it works | Many passwords tried against one account | One password tried against many accounts |
+| Speed | Fast and aggressive | Slow and spread out |
+| Failures per account | High | Low, usually 1 to 3 |
+| Lockout risk | High | Low by design |
+| Why attackers use it | Targeting one specific person | Avoiding security alerts while covering many accounts |
 
-Password spraying is significantly harder to detect because no single 
-account accumulates enough failures to trigger standard lockout alerts. 
-The attack blends into normal background noise of everyday user mistakes.
+Password spraying is harder to catch because the failures are spread across 
+accounts rather than concentrated on one. Each account looks like a normal 
+user mistake on its own. The pattern only becomes obvious when you zoom out 
+and look at everything together.
 
 ---
 
 ## Investigation Steps
 
 ### Step 1 — Load and Review Raw Logs
-The dataset was loaded into Splunk and raw logs were reviewed first to 
-understand the full scope of authentication activity before running 
-any detection queries.
 
 **Query used:**
 ```
 index=main source="password-spray-logs.csv"
 ```
 
-**Why this query:**
-Always begin with raw unfiltered data to establish your baseline. 
-Clicking on the password_attempted field in the left panel immediately 
-revealed that one password — Summer2026! — appeared in 83.3% of all 
-events. This was the first and most critical early indicator of 
-password spraying activity.
+**What this does and why:**
+This loads the full dataset without any filters. The first thing to do 
+is get a feel for the data before running any specific queries. At this 
+stage the goal is to look at the available fields and check if anything 
+stands out straight away.
 
-**What to look for:**
-Total event count, unique users, unique IP addresses, and any field 
-that shows disproportionate concentration on a single value.
+Clicking on the password_attempted field in the left panel is particularly 
+useful here. In a spray attack one password appears far more frequently 
+than anything else because the same guess is being used across every account.
 
-**Finding:**
-30 total authentication events were present. Reviewing the 
-password_attempted field revealed 6 unique passwords — but Summer2026! 
-accounted for 25 of 30 events — 83.3% of all activity. All other 
-passwords appeared exactly once each — consistent with legitimate 
-users logging in with their own unique credentials.
+**What was found:**
+30 total events. Clicking on the password_attempted field revealed that 
+Summer2026! appeared in 25 of those 30 events which is 83% of all activity. 
+Every other password appeared exactly once. That single data point was 
+enough to flag this as highly suspicious before running a single detection 
+query. The screenshot below shows the full raw dataset in Splunk.
 
-![Figure 1 — Raw log overview showing 30 events with password_attempted 
-field revealing Summer2026! used in 83.3% of all 
-events](screenshots/01-raw-logs.png)
-
-**Figure 1** establishes the baseline dataset and immediately highlights 
-the disproportionate use of a single password across the environment — 
-the earliest indicator of a spray attack.
+![Raw log overview showing 30 events with Summer2026! appearing in 
+83% of all authentication activity](screenshots/01-raw-logs.png)
 
 ---
 
 ### Step 2 — Full Dataset Overview
-All events were organised into a clean structured table to visualise 
-the complete authentication picture across the environment.
 
 **Query used:**
 ```
 index=main source="password-spray-logs.csv"
-| table time, user, src_ip, dest_ip, password_attempted, status, 
+| table time, user, src_ip, dest_ip, password_attempted, status,
   description
 | sort time
 ```
 
-**Why this query:**
-Including src_ip, user and password_attempted in the same table allows 
-you to immediately see the spray pattern — one IP, many users, same 
-password. Sorting by time shows the chronological sequence of the attack 
-versus normal logins.
+**What this does and why:**
+Putting the key fields into a clean table and sorting by time lets you 
+read the events in the order they happened. Including src_ip and user 
+in the same view makes the spray pattern easy to spot. In a spray attack 
+you expect to see one IP address appearing repeatedly next to many 
+different user accounts within a short time window.
 
-**What pattern to expect:**
-A spray attack shows one IP address appearing repeatedly across many 
-different user rows within a short time window. Legitimate logins show 
-different IPs for different users — each person logging in from their 
-own machine.
+**What was found:**
+The table showed 192.168.1.77 appearing next to every single user account 
+within a two minute window. All the legitimate logins in the dataset came 
+from different IPs, one per user. Only 192.168.1.77 appeared across 
+multiple accounts and it showed up at regular intervals suggesting 
+automated tooling. The screenshot below shows the full table with the 
+spray pattern clearly visible.
 
-**Finding:**
-The table clearly exposed the spray pattern — IP address 192.168.1.77 
-appeared repeatedly across 9 different user accounts within a 2 minute 
-window. All legitimate user logins came from their own individual IP 
-addresses. The contrast between 192.168.1.77 appearing across all 
-accounts versus each legitimate user having their own unique IP was 
-immediately visible.
-
-![Figure 2 — Full dataset table showing 192.168.1.77 targeting multiple 
-accounts simultaneously contrasted against normal single-IP user 
-logins](screenshots/02-full-table-overview.png)
-
-**Figure 2** makes the spray pattern immediately visible — one IP 
-address appearing across every user account is impossible to explain 
-as normal behaviour and is definitive evidence of an automated attack.
+![Full dataset table showing 192.168.1.77 targeting every user account 
+within a two minute window](screenshots/02-full-table-overview.png)
 
 ---
 
 ### Step 3 — Identify the Spray Pattern and Compromised Account
-All events using the spray password were isolated and grouped by user 
-and status to identify exactly which account was successfully compromised.
 
 **Query used:**
 ```
-index=main source="password-spray-logs.csv" 
+index=main source="password-spray-logs.csv"
 password_attempted="Summer2026!"
 | stats count by user, status
 | sort user
 ```
 
-**Why this query:**
-Filtering by the spray password and grouping by both user and status 
-simultaneously shows two critical things — which accounts were targeted 
-and which one succeeded. The count per account reveals the deliberate 
-pattern of exactly 2 attempts per account.
+**What this does and why:**
+Filtering to only the spray password and grouping by user and status 
+shows two things at once. It confirms which accounts were targeted and 
+which one actually succeeded. The count per account also reveals whether 
+the attacker was deliberately limiting attempts to stay under the lockout 
+threshold.
 
-**What pattern to expect:**
-A password spray shows exactly 1 to 3 failures per account — deliberately 
-staying under the lockout threshold. One account shows a success — the 
-account whose real password matched the spray attempt.
-
-**Finding:**
+**What was found:**
 | User | Status | Count |
 |------|--------|-------|
 | admin | failed | 2 |
@@ -175,25 +151,19 @@ account whose real password matched the spray attempt.
 | user1 | failed | 2 |
 | user2 | failed | 2 |
 
-Every account received exactly 2 failed attempts — a deliberate pattern 
-to avoid triggering account lockout policies. jsmith was the only account 
-to show success — confirming Summer2026! was jsmith's actual password. 
-The 7 successful events indicate the attacker used jsmith's credentials 
-extensively after the initial breach.
+Every account got exactly 2 failures. That is not a coincidence. The 
+attacker deliberately kept it at 2 to avoid triggering any lockout 
+policy. jsmith was the only account that showed a success which means 
+Summer2026! was jsmith's actual password. The 7 successful events for 
+jsmith show the attacker used that account extensively after getting in. 
+The screenshot below shows this result.
 
-![Figure 3 — Spray pattern showing exactly 2 failures per account with 
-jsmith as the only success — confirming the compromised 
-account](screenshots/03-spray-pattern-by-user.png)
-
-**Figure 3** is the definitive proof of password spraying — the uniform 
-2-failure pattern across every account is statistically impossible 
-without an automated tool deliberately limiting attempts per account.
+![Spray pattern showing exactly 2 failures per account with jsmith 
+as the only compromised account](screenshots/03-spray-pattern-by-user.png)
 
 ---
 
 ### Step 4 — Confirm Single Source IP
-Failed login attempts were grouped by source IP to confirm all attack 
-activity originated from a single location.
 
 **Query used:**
 ```
@@ -202,37 +172,25 @@ index=main source="password-spray-logs.csv" status=failed
 | sort -count
 ```
 
-**Why this query:**
-Grouping failures by source IP confirms whether this is a single 
-targeted attacker or a distributed attack from multiple sources. 
-A single IP responsible for failures across all accounts is definitive 
-proof of an automated spray tool rather than coincidental user mistakes.
+**What this does and why:**
+Grouping all failed logins by source IP confirms whether the attack came 
+from one place or many. This matters because a single IP responsible for 
+failures across all accounts rules out the possibility that these were 
+just random user mistakes happening at the same time. It can only be 
+explained by one automated tool targeting every account.
 
-**What pattern to expect:**
-A password spray attack originates from one IP — the attacker's machine 
-running an automated spray tool. Random user mistakes would come from 
-many different IPs.
+**What was found:**
+Every single one of the 18 failed login attempts came from 192.168.1.77. 
+Not one failure in the dataset came from any other IP address. One source 
+hitting nine different accounts in the same time window is impossible to 
+explain as normal behaviour. The screenshot below confirms this finding.
 
-**Finding:**
-All 18 failed login attempts across 9 different user accounts originated 
-exclusively from IP address 192.168.1.77. Not a single failed login came 
-from any other IP address. One IP targeting 9 accounts simultaneously is 
-statistically impossible as random user behaviour — confirming this was 
-an automated attack tool.
-
-![Figure 4 — All 18 failed attempts confirmed as originating from single 
-IP 192.168.1.77](screenshots/04-attacking-ip.png)
-
-**Figure 4** eliminates any possibility of this being coincidental 
-activity. A single IP responsible for all failures across all accounts 
-is definitive confirmation of an automated password spray attack.
+![All 18 failed attempts confirmed as originating from a single 
+IP address 192.168.1.77](screenshots/04-attacking-ip.png)
 
 ---
 
 ### Step 5 — Trace Lateral Movement
-Successful logins using jsmith's compromised credentials were isolated 
-and sorted chronologically to trace the attacker's movement across 
-the network after the initial breach.
 
 **Query used:**
 ```
@@ -241,55 +199,45 @@ index=main source="password-spray-logs.csv" user=jsmith status=success
 | sort time
 ```
 
-**Why this query:**
-Filtering for jsmith's successful logins specifically from 192.168.1.77 
-— the attacker's IP — shows every system the attacker accessed using 
-the stolen credentials. Multiple destination IPs in quick succession 
-confirms lateral movement.
+**What this does and why:**
+Looking at only jsmith's successful logins in time order shows every 
+server the attacker accessed after getting in. A normal employee logs 
+into one or two consistent systems. If the same account suddenly starts 
+appearing on five different servers within an hour that is a strong sign 
+someone else is using those credentials.
 
-**What pattern to expect:**
-A normal employee logs into 1 or 2 consistent systems. An attacker with 
-stolen credentials accesses many different servers rapidly — especially 
-high value targets. The source IP remaining as 192.168.1.77 throughout 
-confirms this is the attacker using jsmith's credentials rather than 
-jsmith themselves.
+The source IP is important here too. jsmith's own machine has a different 
+IP. If all these successful logins are still coming from 192.168.1.77 
+that confirms it is the attacker using the stolen credentials rather 
+than jsmith logging in normally.
 
-**Finding:**
-After compromising jsmith's account at 14:02:07 the attacker moved 
-laterally across the network accessing 5 different servers within 
-one hour:
+**What was found:**
+After compromising jsmith's account at 14:02 the attacker moved through 
+the network accessing five different servers over the next hour:
 
-| Time | Destination IP | Server Role | Risk |
-|------|---------------|-------------|------|
-| 14:02:07 | 10.0.0.5 | Domain Controller | Critical |
-| 14:05:00 | 10.0.0.5 | Domain Controller again | Critical |
-| 14:10:00 | 10.0.0.20 | File Server | High |
-| 14:15:00 | 10.0.0.30 | Backup Server | Critical |
-| 15:00:00 | 10.0.0.40 | Unknown Server | High |
-| 15:05:00 | 10.0.0.50 | Unknown Server | High |
-| 15:10:00 | 10.0.0.20 | File Server revisited | High |
+| Time | Server IP | What it is |
+|------|-----------|------------|
+| 14:02:07 | 10.0.0.5 | Domain Controller |
+| 14:05:00 | 10.0.0.5 | Domain Controller again |
+| 14:10:00 | 10.0.0.20 | File Server |
+| 14:15:00 | 10.0.0.30 | Backup Server |
+| 15:00:00 | 10.0.0.40 | Unknown server |
+| 15:05:00 | 10.0.0.50 | Unknown server |
+| 15:10:00 | 10.0.0.20 | File Server again |
 
-Domain controller access is the most critical finding — an attacker 
-with domain controller access can reset passwords, create accounts and 
-control every machine on the network. Backup server access raises the 
-risk of ransomware deployment as attackers commonly destroy backups 
-to prevent recovery.
+Getting into the domain controller is the most serious finding here. 
+Whoever has access to that has access to every account and machine in 
+the organisation. The backup server access is also critical because 
+attackers often destroy backups before launching ransomware to remove 
+the victim's ability to recover. The screenshot below shows all seven 
+successful logins and the servers accessed.
 
-![Figure 5 — Lateral movement showing attacker accessing 5 servers 
-using jsmith credentials within one hour of initial 
-breach](screenshots/05-jsmith-lateral-movement.png)
-
-**Figure 5** confirms the full scope of the breach — from a single 
-guessed password the attacker reached the domain controller, file 
-server, backup server and two additional unknown systems within 
-68 minutes.
+![jsmith successful logins showing lateral movement across five servers 
+within 68 minutes of the initial breach](screenshots/05-jsmith-lateral-movement.png)
 
 ---
 
 ### Step 6 — Visualize the Spray Pattern Over Time
-A timechart was used to visualize failed login activity over time, 
-providing clear visual proof of the synchronized spray pattern that 
-is impossible to explain as normal user behaviour.
 
 **Query used:**
 ```
@@ -297,53 +245,44 @@ index=main source="password-spray-logs.csv" status=failed
 | timechart span=1m count by user
 ```
 
-**Why this query:**
-The `timechart` command is one of the most powerful detection tools in 
-Splunk — it plots activity over time grouped by a field. Visualizing 
-failed logins by user over time immediately reveals whether failures 
-are random and scattered — normal — or synchronized and simultaneous 
-— an attack. This type of visualization is used in real SOC dashboards 
-for continuous monitoring.
+**What this does and why:**
+The timechart command plots activity over time grouped by user. This 
+turns the numbers into a visual that makes the spray pattern impossible 
+to miss. In a spray attack all accounts get hit at the same time in 
+synchronized waves. Normal failed logins look scattered and random. 
+The difference between the two is immediately obvious on a chart.
 
-**What pattern to expect:**
-Normal failed logins appear as scattered random bars at different times 
-for different users. A password spray appears as synchronized clusters 
-where every user account shows a failure at exactly the same time — 
-only possible with an automated tool cycling through accounts.
+This type of visualization is used in real SOC dashboards to monitor 
+for spray attacks in real time because the pattern stands out so clearly 
+compared to normal authentication noise.
 
-**Finding:**
-The visualization revealed three distinct synchronized waves of failed 
-login attempts at 14:00, 14:01 and 14:02 — every user account being 
-hit simultaneously in each wave. This perfectly synchronized pattern 
-across 9 accounts is statistically impossible as random user behaviour 
-and is definitive visual proof of an automated password spray tool.
+**What was found:**
+The chart showed three distinct waves of failed logins at 14:00, 14:01 
+and 14:02 where every single user account was hit at the same time in 
+each wave. That level of synchronization across nine different accounts 
+is not possible through normal user behaviour. It can only happen with 
+an automated tool cycling through every account on a timer. The screenshot 
+below shows the chart with the three waves clearly visible.
 
-![Figure 6 — Timechart visualization showing three synchronized waves 
-of failed logins across all accounts simultaneously — definitive visual 
-proof of automated password spraying](screenshots/06-spray-timechart-visualization.png)
-
-**Figure 6** is the most powerful visual in this investigation. The 
-synchronized clustering of failures across all accounts at exactly the 
-same time intervals is impossible to explain as coincidence — this 
-pattern could only be produced by an automated attack tool.
+![Timechart showing three synchronized waves of failed logins across 
+all accounts confirming automated password spraying](screenshots/06-spray-timechart-visualization.png)
 
 ---
 
-## Attack Timeline
+## 🕒 Attack Timeline
 
-| Time | Event |
-|------|-------|
-| 2026-04-10 14:00:01 | First spray wave begins — admin targeted |
-| 2026-04-10 14:00:01—14:00:57 | Wave 1 — all 9 accounts hit once each |
-| 2026-04-10 14:01:04—14:01:53 | Wave 2 — all accounts hit second time |
-| 2026-04-10 14:02:00 | Wave 3 begins — admin hit again |
-| 2026-04-10 14:02:07 | ⚠️ jsmith account breached — Summer2026! succeeds |
-| 2026-04-10 14:02:07 | Attacker accesses domain controller 10.0.0.5 |
-| 2026-04-10 14:10:00 | Attacker accesses file server 10.0.0.20 |
-| 2026-04-10 14:15:00 | ⚠️ Attacker accesses backup server 10.0.0.30 |
+| Time | What happened |
+|------|--------------|
+| 2026-04-10 14:00:01 | First spray wave begins with every account hit once in quick succession |
+| 2026-04-10 14:01:04 | Second wave starts with all accounts hit a second time |
+| 2026-04-10 14:02:00 | Third wave begins |
+| 2026-04-10 14:02:07 | ⚠️ jsmith account breached as Summer2026! matches the real password |
+| 2026-04-10 14:02:07 | Attacker immediately accesses domain controller using jsmith credentials |
+| 2026-04-10 14:10:00 | Attacker accesses file server |
+| 2026-04-10 14:15:00 | ⚠️ Attacker accesses backup server |
 | 2026-04-10 15:00:00 | Attacker accesses unknown server 10.0.0.40 |
 | 2026-04-10 15:05:00 | Attacker accesses unknown server 10.0.0.50 |
-| 2026-04-10 15:10:00 | Attacker returns to file server 10.0.0.20 |
+| 2026-04-10 15:10:00 | Attacker returns to file server |
 
 ---
 
@@ -353,71 +292,81 @@ pattern could only be produced by an automated attack tool.
 |---------|--------|
 | Attack type | Password spraying |
 | Attacking IP | 192.168.1.77 |
-| Accounts targeted | 9 accounts |
+| Accounts targeted | 9 |
 | Total failed attempts | 18 |
-| Attempts per account | 2 — deliberately under lockout threshold |
+| Attempts per account | 2 deliberately kept under lockout threshold |
 | Compromised account | jsmith |
 | Compromise time | 2026-04-10 14:02:07 |
 | Servers accessed | 10.0.0.5, 10.0.0.20, 10.0.0.30, 10.0.0.40, 10.0.0.50 |
 | Attack duration | Spray lasted 2 minutes, lateral movement lasted 68 minutes |
-| Root cause | Weak seasonal password — Summer2026! |
-| Weakness exploited | No MFA, weak password policy, no spray detection alert |
+| Root cause | Weak seasonal password with no MFA |
+| Severity | Critical |
 
 ---
 
 ## MITRE ATT&CK Mapping
 
-| Technique | ID | Explanation |
-|-----------|-----|-------------|
-| Password Spraying | T1110.003 | The attacker attempted one common password against many accounts simultaneously — deliberately staying under lockout thresholds to avoid detection |
-| Valid Accounts | T1078 | After guessing jsmith's password the attacker used legitimate credentials — making their activity appear as normal user logins to the network |
-| Lateral Movement via Remote Services | T1021 | The attacker used jsmith's credentials to authenticate to 5 different servers across the network — expanding their foothold beyond the initial compromise |
-| Remote Services — SMB/Windows Admin Shares | T1021.002 | Network logons were used to access remote servers using standard Windows authentication protocols |
+| Technique | ID | What was observed |
+|-----------|-----|------------------|
+| Password Spraying | T1110.003 | One password was tried against every account in a synchronized automated pattern deliberately designed to stay under account lockout thresholds |
+| Valid Accounts | T1078 | After guessing jsmith's password the attacker used real credentials meaning all their subsequent activity appeared as normal authorised logins |
+| Lateral Movement via Remote Services | T1021 | The stolen jsmith credentials were used to access five different internal servers across the network within 68 minutes of the initial breach |
+| Remote Services | T1021.002 | Standard Windows network authentication was used to move between servers making the lateral movement blend in with normal traffic |
 
 ---
 
 ## Conclusion
-This investigation confirmed a successful password spray attack against 
-SecureCore Ltd launched from IP address 192.168.1.77. The attacker used 
-an automated tool to attempt the password Summer2026! against 9 user 
-accounts in three synchronized waves — deliberately limiting attempts 
-to 2 per account to stay below the account lockout threshold.
+This attack worked because of two things. jsmith had a weak password that 
+was easy to guess, and there was nothing in place to detect or slow down 
+an attacker trying the same password across every account.
 
-The attack succeeded because jsmith used a weak seasonal password that 
-matched the attacker's spray attempt. This is a common and preventable 
-failure — seasonal passwords such as Summer2026!, Winter2025! and 
-Welcome123! are among the first passwords tested in spray attacks.
+The spray technique was chosen deliberately. By keeping attempts to two 
+per account the attacker avoided triggering any lockout alerts. From the 
+outside each account looked like a normal user mistake. The attack only 
+becomes obvious when you look at all the accounts together and notice 
+that the same IP hit all of them at the same time.
 
-Following the breach the attacker moved laterally across 5 servers 
-within 68 minutes — including the domain controller and backup server — 
-representing a critical severity incident. Domain controller access 
-means the attacker potentially had the ability to control every machine 
-and account in the organisation. Backup server access raises the 
-immediate risk of ransomware deployment with no recovery path.
+Once in, the attacker moved quickly. Within eight minutes of guessing 
+jsmith's password they were already on the domain controller. By the 
+end of the first hour they had touched five different servers. The backup 
+server access is the most concerning finding because it suggests the 
+attacker may have been preparing for a ransomware deployment.
 
-The timechart visualization provides definitive visual proof that this 
-was an automated coordinated attack — the perfectly synchronized failure 
-pattern across all 9 accounts simultaneously is statistically impossible 
-as random user behaviour.
+The organisation had no detection in place for this type of attack. A 
+simple alert watching for one IP hitting more than three accounts within 
+60 seconds would have caught this during the first wave before the 
+attacker even succeeded.
 
-The primary weaknesses exploited were the absence of multi-factor 
-authentication, a weak password policy that allowed seasonal passwords, 
-and no SIEM alert for a single IP targeting multiple accounts within 
-a short time window.
+---
+
+## 🔑 Key Takeaways
+
+- Password spraying is designed to be invisible at the account level. 
+  You only see it when you look across all accounts at the same time
+- One IP hitting nine accounts in two minutes is not a coincidence. 
+  That pattern only comes from an automated tool
+- Exactly two failures per account was not random. The attacker knew 
+  the lockout threshold and stayed just below it
+- A weak seasonal password brought down one account and that was enough 
+  to reach five servers including the domain controller
+- The spray to lateral movement gap was eight minutes. Attacks move 
+  fast once they succeed
+- Backup server access means ransomware risk. Always verify backup 
+  integrity when this server is touched by a suspicious account
+
+---
 
 ## Recommended Actions
-- Immediately disable jsmith's account and reset credentials
-- Block 192.168.1.77 at the firewall immediately
-- Investigate all 5 servers accessed for signs of data theft or tampering
-- Check domain controller logs for new account creation or permission 
+- Disable jsmith's account and reset credentials immediately
+- Block 192.168.1.77 at the firewall
+- Check all five servers accessed for signs of data access or changes
+- Review domain controller logs for any new accounts or permission 
   changes made during the breach window
 - Verify backup server integrity immediately
-- Force organisation-wide password reset with complexity requirements
-- Ban seasonal and common passwords using a password blacklist
-- Enable multi-factor authentication on all accounts — priority on 
-  privileged accounts
-- Implement account lockout after 3 failed attempts
-- Create SIEM alert — single IP targeting more than 3 accounts within 
-  60 seconds
-- Educate employees on password security — specifically the risk of 
-  seasonal and predictable passwords
+- Force a password reset across the entire organisation
+- Put a password policy in place that blocks seasonal and common passwords
+- Turn on multi-factor authentication for all accounts starting with 
+  privileged ones
+- Set account lockout to trigger after 3 failed attempts
+- Create a SIEM alert for any single IP hitting more than 3 accounts 
+  within 60 seconds
