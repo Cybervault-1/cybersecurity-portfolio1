@@ -1,0 +1,33 @@
+time,host,user,src_ip,src_port,dest_ip,EventCode,LogonType,ProcessName,status,description,domain
+2026-04-06 09:58:01,DC01,admin,192.168.1.10,51001,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:07,DC01,admin,192.168.1.10,51002,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:13,DC01,admin,192.168.1.10,51003,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:19,DC01,admin,192.168.1.10,51004,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:25,DC01,admin,192.168.1.10,51005,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:31,DC01,admin,192.168.1.10,51006,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:37,DC01,admin,192.168.1.10,51007,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:43,DC01,admin,192.168.1.10,51008,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:49,DC01,admin,192.168.1.10,51009,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:58:55,DC01,admin,192.168.1.10,51010,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:01,DC01,admin,192.168.1.10,51011,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:07,DC01,admin,192.168.1.10,51012,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:13,DC01,admin,192.168.1.10,51013,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:19,DC01,admin,192.168.1.10,51014,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:25,DC01,admin,192.168.1.10,51015,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:31,DC01,admin,192.168.1.10,51016,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:37,DC01,admin,192.168.1.10,51017,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:43,DC01,admin,192.168.1.10,51018,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:49,DC01,admin,192.168.1.10,51019,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 09:59:55,DC01,admin,192.168.1.10,51020,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 10:00:03,DC01,admin,192.168.1.10,51021,10.0.0.5,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
+2026-04-06 10:05:00,DC01,jsmith,192.168.1.25,51100,10.0.0.5,4624,2,explorer.exe,success,Interactive logon success,SECURECORE
+2026-04-06 10:10:00,DC01,jsmith,192.168.1.25,51101,10.0.0.5,4624,2,explorer.exe,success,Interactive logon success,SECURECORE
+2026-04-06 10:15:00,WEB01,service_acc,192.168.1.50,51200,10.0.0.10,4624,5,services.exe,success,Service account logon,SECURECORE
+2026-04-06 10:20:00,DC01,mwilliams,192.168.1.33,51300,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 10:20:30,DC01,mwilliams,192.168.1.33,51301,10.0.0.5,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
+2026-04-06 10:30:00,DC01,admin,192.168.1.10,51400,10.0.0.5,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
+2026-04-06 10:45:00,FILE01,admin,192.168.1.10,51500,10.0.0.20,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
+2026-04-06 10:47:00,BACKUP01,admin,192.168.1.10,51600,10.0.0.30,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
+2026-04-06 11:00:00,DC01,tbrady,192.168.1.40,51700,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 11:00:10,DC01,tbrady,192.168.1.40,51701,10.0.0.5,4625,3,winlogon.exe,failed,An account failed to log on,SECURECORE
+2026-04-06 11:00:20,DC01,tbrady,192.168.1.40,51702,10.0.0.5,4624,3,winlogon.exe,success,An account was successfully logged on,SECURECORE
