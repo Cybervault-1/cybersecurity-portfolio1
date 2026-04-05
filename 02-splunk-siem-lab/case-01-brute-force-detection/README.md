@@ -1,6 +1,3 @@
-
-markdown# Case 01 — Brute Force Attack Detection
-
 ## Scenario
 It is Monday morning at SecureCore Ltd. The SOC team receives an alert indicating 
 multiple failed login attempts on the domain controller. A junior analyst is tasked 
