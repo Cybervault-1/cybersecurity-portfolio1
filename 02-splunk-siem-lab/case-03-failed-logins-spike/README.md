@@ -1,4 +1,4 @@
-## Executive Summary
+##  Summary
 An attacker used an automated tool to try one common password against every 
 user account at SecureCore Ltd. By keeping the number of attempts low per 
 account they stayed under the lockout threshold and avoided triggering any 
