@@ -1,6 +1,4 @@
-# Case 02 — Suspicious PowerShell Activity Detection
-
-## Executive Summary
+## Summary
 An attacker used PowerShell to compromise workstation WKSTN-04 at SecureCore 
 Ltd. They hid their commands using encoding to avoid detection, created a 
 secret administrator account to maintain access, downloaded malware from an 
