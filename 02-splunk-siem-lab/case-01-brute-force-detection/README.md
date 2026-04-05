@@ -80,7 +80,7 @@ up most of the events something is wrong.
 
 **What was found:**
 124 events in total. Clicking the status field on the left showed 38 
-failed logins versus 12 successful ones — a 76% failure rate which is 
+failed logins versus 12 successful ones, a 76% failure rate which is 
 way above normal. The screenshot below shows the full raw dataset as it 
 appeared in Splunk with all fields correctly loaded.
 
@@ -118,8 +118,8 @@ because it has dramatically more failures than everyone else.
 
 The admin account had 33 failures. Every other account had 2 or less. 
 That gap is too large to be a coincidence. The screenshot below shows 
-this clearly — the bar next to admin is far longer than anything else 
-on the chart, making the targeting obvious at a glance.
+this clearly the bar next to admin is far longer than anything else 
+on the logs, making the targeting obvious at a glance.
 
 ![Failed login count per user showing admin as the clear primary 
 target with 33 failures](screenshots/02-failed-logins-by-user.png)
