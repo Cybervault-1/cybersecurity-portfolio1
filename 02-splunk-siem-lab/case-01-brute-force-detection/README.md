@@ -301,16 +301,16 @@ controller, file server and backup server](screenshots/06-lateral-movement.png)
 
 | Technique | ID | What was observed |
 |-----------|-----|------------------|
-| Brute Force — Password Guessing | T1110.001 | An automated tool made 33 repeated password attempts against the admin account — only possible because there was no lockout policy to block it |
-| Valid Accounts | T1078 | After getting the password right the attacker used real admin credentials — meaning their activity looked like normal authorised logins to anyone watching |
+| Brute Force — Password Guessing | T1110.001 | An automated tool made 33 repeated password attempts against the admin account, only possible because there was no lockout policy to block it |
+| Valid Accounts | T1078 | After getting the password right the attacker used real admin credentials, meaning their activity looked like normal authorised logins to anyone watching |
 | Lateral Movement via Remote Services | T1021 | The stolen admin credentials were used to log into three different servers across the network within 47 minutes of the second breach |
-| Credential Access | T1110 | The speed and volume of attempts — one every few seconds — confirms an automated credential access tool was used rather than someone guessing manually |
+| Credential Access | T1110 | The speed and volume of attempts , one every few seconds, confirms an automated credential access tool was used rather than someone guessing manually |
 
 ---
 
 ## Conclusion
 This was a straightforward brute force attack that worked because the 
-basics were not in place. The attacker did not do anything clever — they 
+basics were not in place. The attacker did not do anything clever, they 
 just kept trying passwords until one worked. The only reason they 
 succeeded is that there was nothing to stop them.
 
@@ -319,7 +319,7 @@ before it started. Multi-factor authentication would have meant a correct
 password still was not enough to get in. Neither was in place.
 
 What made this worse is that the attacker came back five days later and 
-got in again through the same route — meaning the first incident was 
+got in again through the same route, meaning the first incident was 
 never properly fixed. By the time the second breach was detected the 
 attacker had already reached the domain controller and the backup server, 
 which puts the entire organisation at risk.
@@ -333,16 +333,16 @@ was changed or stolen.
 ## 🔑 Key Takeaways
 
 - A lockout policy after 5 failed attempts would have stopped this 
-  entirely — it is one of the simplest controls to put in place
-- Brute force is easy to spot in logs once you know what to look for — 
+  entirely, it is one of the simplest controls to put in place
+- Brute force is easy to spot in logs once you know what to look for,
   rapid failures from one IP against one account is a clear pattern
 - The moment an attacker gets a successful login the severity jumps 
-  immediately — this is no longer just an attempt, it is a breach
+  immediately, this is no longer just an attempt, it is a breach
 - One compromised account reached three critical servers in under an 
-  hour — lateral movement happens fast
+  hour , lateral movement happens fast
 - Coming back five days later and getting in again shows the first 
-  response was incomplete — always verify the full attack path is closed
-- Backup server access means ransomware is a real possibility — 
+  response was incomplete, always verify the full attack path is closed
+- Backup server access means ransomware is a real possibility, 
   verify backup integrity immediately when this happens
 
 ---
