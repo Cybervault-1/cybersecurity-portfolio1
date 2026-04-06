@@ -76,3 +76,84 @@ both attacks plotted on the same timeline.
 
 **Total Failed Login Attempts:**
 ```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv") status=failed
+| stats count as "Total Failed Logins"
+```
+
+**Total Successful Logins:**
+```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv") status=success
+| stats count as "Total Successful Logins"
+```
+
+**Encoded PowerShell Commands:**
+```
+index=main source="powershell-logs.csv" encoded=true
+| stats count as "Encoded Commands"
+```
+
+**Failed Logins by User:**
+```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv") status=failed
+| stats count by user
+| sort -count
+```
+
+**Failed Logins by Source IP:**
+```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv") status=failed
+| stats count by src_ip
+| sort -count
+```
+
+**Login Status Breakdown:**
+```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv")
+| stats count by status
+```
+
+**Failed Login Activity Over Time:**
+```
+index=main (source="brute-force-logs.csv" OR source="password-spray-logs.csv") status=failed
+| timechart span=1h count by source
+```
+
+---
+
+## Screenshots
+
+Full dashboard overview showing all panels:
+
+![SOC Investigation Dashboard](screenshots/01-soc-investigation-dashboard.png)
+
+Overview row showing total failed logins, successful logins and encoded 
+PowerShell detections:
+
+![Overview Panels](screenshots/02-overview-panels.png)
+
+Attack analysis row showing which users and IPs were responsible for 
+the most failed login attempts:
+
+![Attack Analysis Charts](screenshots/03-attack-analysis-charts.png)
+
+Pattern analysis row showing login status breakdown and attack activity 
+over time:
+
+![Pattern Analysis Charts](screenshots/04-pattern-analysis-charts.png)
+
+---
+
+## Why This Dashboard Matters
+In a real SOC environment analysts cannot manually run queries every time 
+they want to check on activity. Dashboards like this one run automatically 
+and display live data so that suspicious patterns are visible immediately 
+without any manual effort.
+
+The three rows follow a natural investigation flow — first you see the 
+summary numbers, then you identify the targets and attackers, then you 
+understand the pattern and timing of the attacks. This is the same mental 
+model a real analyst uses when investigating an incident.
+
+Building this dashboard demonstrates the ability to not just investigate 
+individual incidents but to create monitoring tools that would detect 
+similar attacks in real time going forward.
