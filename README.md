@@ -113,7 +113,7 @@ across domain, IP and file hash investigations.
 - Threat Detection Scenarios
 - Endpoint Analysis
 
-  ## 🏆 Certifications
+## 🏆 Certifications
 
 All certifications were completed as part of the **Google Cybersecurity 
 Certificate** program on Coursera — a professional level program covering 
@@ -122,49 +122,49 @@ the core skills required for entry level cybersecurity roles.
 ---
 
 ### Foundations of Cybersecurity
-![Foundations of Cybersecurity](certificates/google-cert-foundations-cybersecurity.png)
+![Foundations of Cybersecurity](Certifications/google-cert-foundations-cybersecurity.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/T1D5RLMIWQRW)
 
 ---
 
 ### Play It Safe — Manage Security Risk
-![Play It Safe](certificates/google-cert-manage-security-risk.png)
+![Play It Safe](Certifications/google-cert-manage-security-risk.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/4M8WDZ72PV63)
 
 ---
 
 ### Connect and Protect — Networks and Network Security
-![Connect and Protect](certificates/google-cert-networks-security.png)
+![Connect and Protect](Certifications/google-cert-networks-security.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/WFBA75LIEIHF)
 
 ---
 
 ### Tools of the Trade — Linux
-![Tools of the Trade](certificates/google-cert-linux-tools.png)
+![Tools of the Trade](Certifications/google-cert-linux-tools.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/JXAT0TKA2ASU)
 
 ---
 
 ### Assets, Threats and Vulnerabilities
-![Assets Threats and Vulnerabilities](certificates/google-cert-assets-threats-vulnerabilities.png)
+![Assets Threats and Vulnerabilities](Certifications/google-cert-assets-threats-vulnerabilities.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/UJ7DVJ1KU6B0)
 
 ---
 
 ### Sound the Alarm — Detection and Response
-![Sound the Alarm](certificates/google-cert-detection-response.png)
+![Sound the Alarm](Certifications/google-cert-detection-response.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/LI4ST1WLS8OX)
 
 ---
 
 ### Automate Cybersecurity Tasks with Python
-![Automate with Python](certificates/google-cert-automate-with-python.png)
+![Automate with Python](Certifications/google-cert-automate-with-python.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/GUBVRHFAEZCG)
 
