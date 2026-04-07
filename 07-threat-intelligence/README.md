@@ -47,3 +47,7 @@ Demonstration of AbuseIPDB using a real recently reported malicious IP
 address. This case shows how to read and interpret an AbuseIPDB report 
 including confidence scores, report counts, attack categories and 
 recent activity.
+
+### Case 03 — File Hash Investigation
+Investigation of a file hash using VirusTotal including vendor 
+detection results and sandbox behavior analysis.
