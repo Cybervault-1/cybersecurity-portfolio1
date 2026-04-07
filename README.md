@@ -121,6 +121,15 @@ the core skills required for entry level cybersecurity roles.
 
 ---
 
+### Google Cybersecurity Professional Certificate
+*Completed March 23, 2026 — 8 Courses*
+
+![Google Cybersecurity Professional Certificate](Certifications/google-cybersecurity-professional-certificate.png)
+
+🔗 [Verify Certificate](https://coursera.org/verify/professional-cert/6WSDVPZVYGEM)
+
+---
+
 ### Foundations of Cybersecurity
 ![Foundations of Cybersecurity](Certifications/google-cert-foundations-cybersecurity.png)
 
