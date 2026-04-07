@@ -181,7 +181,7 @@ the core skills required for entry level cybersecurity roles.
 ## 📫 Contact
 Feel free to connect with me or verify my credentials using the links below.
 
-* 🎓[Coursera Profile](https://www.coursera.org/user/8bcf046c201e45f6c7eb24def551f187)
+* 🎓Coursera Profile: https://www.coursera.org/learner/adetayo-1203
 * GitHub: https://github.com/Cybervault-1
 * Email: [adedejiadetayo33@gmail.com](mailto:adedejiadetayo33@gmail.com)
 * LinkedIn: https://www.linkedin.com/in/adetayo-adedeji-473816337/
