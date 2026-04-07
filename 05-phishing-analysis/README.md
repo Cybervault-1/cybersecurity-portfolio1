@@ -28,10 +28,11 @@ A phishing investigation in a real SOC typically involves:
 ## Cases
 
 ### Case 01 — Suspicious Email Investigation
-A phishing email impersonating Microsoft was reported by an employee. 
-The investigation confirmed the email was sent through a known malicious 
-Tor exit node and contained a credential harvesting link pointing to a 
-Russian domain. Full IOC extraction and analysis was performed.
+A phishing email impersonating Microsoft was reported by an employee.
+The investigation confirmed the email was sent through a known malicious
+Tor exit node and contained a credential harvesting link.
+
+[View Case 01](case-01-suspicious-email/README.md)
 
 ### Case 02 — Malicious Link Analysis
 A phishing email impersonating GitHub was reported by a developer.
