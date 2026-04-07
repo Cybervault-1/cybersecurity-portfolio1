@@ -180,5 +180,8 @@ the core skills required for entry level cybersecurity roles.
 ---
 
 ## 📫 Contact
-Feel free to connect with me on LinkedIn or reach out if you have 
-any questions about my work.
+
+* GitHub: https://github.com/Cybervault-1
+* Email: [adedejiadetayo33@gmail.com](mailto:adedejiadetayo33@gmail.com)
+* LinkedIn: https://www.linkedin.com/in/adetayo-adedeji-473816337/
+---
