@@ -59,5 +59,6 @@ Aspiring SOC Analyst with hands-on experience in network traffic analysis, SIEM 
 
 ### 🌐 Threat Intelligence
 
-* (Coming soon)
-
+- [Case 01 — Domain Analysis](07-threat-intelligence/case-01-domain-analysis/README.md)
+- [Case 02 — IP Reputation Analysis](07-threat-intelligence/case-02-ip-reputation/README.md)
+- [Case 03 — File Hash Investigation](07-threat-intelligence/case-03-file-hash/README.md)
