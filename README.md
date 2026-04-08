@@ -96,6 +96,9 @@ sending infrastructure and analysing malicious links safely.
 ---
 
 ### 💻 Endpoint Analysis
+System level investigations using Sysmon logs to trace malware execution, 
+process behaviour, C2 communication and lateral movement across compromised 
+workstations.
 
 - [Case 01 — Suspicious Process Detection](06-endpoint-analysis/case-01-suspicious-process/README.md)
 - [Case 02 — Unauthorized Program Execution](06-endpoint-analysis/case-02-unauthorized-execution/README.md)
