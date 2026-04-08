@@ -94,8 +94,8 @@ sending infrastructure and analysing malicious links safely.
 ---
 
 ### 💻 Endpoint Analysis
-(Coming soon)
 
+- [Case 01 — Suspicious Process Detection](06-endpoint-analysis/case-01-suspicious-process/README.md)
 ---
 
 ### 🌐 Threat Intelligence
