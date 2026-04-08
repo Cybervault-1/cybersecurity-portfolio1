@@ -26,11 +26,11 @@ controller, file server and backup server.
 | Date/Time | Event |
 |-----------|-------|
 | 2026-04-01 10:00:01 | Multiple failed login attempts begin against admin account from 192.168.1.10 |
-| 2026-04-01 10:01:00 | Admin account successfully breached — first confirmed breach |
+| 2026-04-01 10:01:00 | Admin account successfully breached. First confirmed breach |
 | 2026-04-01 10:30:00 | Second IP 192.168.1.99 appears making 3 unknown login attempts |
-| 2026-04-01 10:30:20 | Activity from 192.168.1.99 stops — no successful login |
-| 2026-04-06 09:58:01 | Attacker returns — second wave of brute force attempts begins |
-| 2026-04-06 10:00:03 | Admin account breached again — second confirmed breach |
+| 2026-04-01 10:30:20 | Activity from 192.168.1.99 stops with no successful login |
+| 2026-04-06 09:58:01 | Attacker returns and second wave of brute force attempts begins |
+| 2026-04-06 10:00:03 | Admin account breached again. Second confirmed breach |
 | 2026-04-06 10:30:00 | Attacker accesses domain controller at 10.0.0.5 |
 | 2026-04-06 10:45:00 | Attacker accesses file server at 10.0.0.20 |
 | 2026-04-06 10:47:00 | Attacker accesses backup server at 10.0.0.30 |
@@ -53,9 +53,9 @@ controller, file server and backup server.
 | Evidence | Detail |
 |----------|--------|
 | Authentication logs | Windows login event logs showing 33 failed attempts and 5 successful logins |
-| Attacking IP | 192.168.1.10 — primary attacker |
-| Secondary IP | 192.168.1.99 — unknown login attempts 29 minutes after breach |
-| Event codes | EventCode 4625 — failed login, EventCode 4624 — successful login |
+| Attacking IP | 192.168.1.10 as primary attacker |
+| Secondary IP | 192.168.1.99 with unknown login attempts 29 minutes after breach |
+| Event codes | EventCode 4625 for failed login and EventCode 4624 for successful login |
 | Lateral movement | Successful logins to 3 different servers within 47 minutes |
 | Tool used | Automated brute force tool confirmed by attempt frequency |
 
@@ -63,26 +63,26 @@ controller, file server and backup server.
 
 ## 5. Root Cause Analysis
 
-The attack succeeded because of two fundamental security failures:
+The attack succeeded because of two fundamental security failures.
 
-**Primary Cause — No Account Lockout Policy**
+**Primary Cause: No Account Lockout Policy**
 The organisation had no account lockout policy in place. A standard 
 lockout after 5 failed attempts would have blocked the attack before 
-it succeeded — preventing the breach entirely. The absence of this 
+it succeeded and prevented the breach entirely. The absence of this 
 basic control allowed the attacker to make unlimited authentication 
 attempts without interruption.
 
-**Secondary Cause — No Multi-Factor Authentication**
+**Secondary Cause: No Multi-Factor Authentication**
 The admin account had no multi-factor authentication enabled. Even 
-if an attacker correctly guesses a password MFA would prevent them 
+if an attacker correctly guesses a password, MFA would prevent them 
 from completing authentication without the second factor. A correct 
 password alone was sufficient to gain full privileged access to the 
 entire network.
 
-**Contributing Factor — Incomplete First Remediation**
+**Contributing Factor: Incomplete First Remediation**
 The attacker returned five days after the initial breach and succeeded 
 again through the same method. This confirms the original incident 
-response was incomplete — the admin credentials were not fully reset 
+response was incomplete. The admin credentials were not fully reset 
 and the attack path was not properly closed after the first breach.
 
 ---
@@ -109,7 +109,7 @@ Actions taken to remove the threat completely:
   mechanisms left by the attacker
 - Reviewed all admin account activity between April 1st and April 6th 
   for any unauthorised changes
-- Verified backup server integrity — confirmed backups were not 
+- Verified backup server integrity and confirmed backups were not 
   modified or deleted
 - Removed attacker IP addresses from all network access lists
 
@@ -133,7 +133,7 @@ Actions taken to restore normal operations safely:
 
 | Priority | Recommendation |
 |----------|---------------|
-| Critical | Implement account lockout policy — lock after 5 failed attempts for 30 minutes |
+| Critical | Implement account lockout policy and lock after 5 failed attempts for 30 minutes |
 | Critical | Enable multi-factor authentication on all privileged accounts immediately |
 | High | Implement real-time SIEM alerting for more than 5 failed logins within 60 seconds |
 | High | Conduct regular privileged account access reviews |
@@ -147,7 +147,7 @@ Actions taken to restore normal operations safely:
 
 This incident demonstrated that the most damaging breaches are often 
 caused by missing basic security controls rather than sophisticated 
-attacks. The attacker did not use any advanced techniques — they simply 
+attacks. The attacker did not use any advanced techniques. They simply 
 kept trying passwords until one worked because nothing was in place to 
 stop them.
 
@@ -157,15 +157,16 @@ verification that the attack path was closed and monitoring to confirm
 the attacker had no remaining access. The incomplete first response 
 gave the attacker a second opportunity to cause significantly more damage.
 
-Key lessons:
+Key lessons from this incident:
+
 - Basic controls like account lockout and MFA must be in place 
-  before an incident occurs — they cannot be retrofitted during one
-- Incident response must be thorough — a partial fix is as dangerous 
-  as no fix because it creates a false sense of security
-- Lateral movement happens fast — the attacker reached three critical 
-  servers within 47 minutes of the second breach
+  before an incident occurs. They cannot be retrofitted during one.
+- Incident response must be thorough. A partial fix is as dangerous 
+  as no fix because it creates a false sense of security.
+- Lateral movement happens fast. The attacker reached three critical 
+  servers within 47 minutes of the second breach.
 - Backup server access must always be treated as a ransomware risk 
-  requiring immediate integrity verification
+  requiring immediate integrity verification.
 
 ---
 
