@@ -71,8 +71,9 @@ three realistic attack scenarios with a combined SOC dashboard.
 ---
 
 ### 🚨 Threat Detection Scenarios
-(Coming soon)
-
+- [Case 01 — Brute Force Attack Detection](03-threat-detection-scenarios/case-01-brute-force-detection/README.md)
+- [Case 02 — Suspicious PowerShell Detection](03-threat-detection-scenarios/case-02-powershell-detection/README.md)
+- [Case 03 — Password Spray Detection](03-threat-detection-scenarios/case-03-password-spray-detection/README.md)
 ---
 
 ### 🛡️ Incident Response Reports
