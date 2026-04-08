@@ -1,0 +1,17 @@
+time,host,user,EventCode,process_name,process_path,parent_process,parent_path,command_line,destination_ip,destination_port,file_created,registry_key,description
+2026-04-11 13:00:00,WKSTN-09,tbrady,1,explorer.exe,C:\Windows\explorer.exe,userinit.exe,C:\Windows\System32\userinit.exe,explorer.exe,,,,,Normal user login process
+2026-04-11 13:05:00,WKSTN-09,tbrady,1,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,explorer.exe,C:\Windows\explorer.exe,outlook.exe,,,,,Normal email client launch
+2026-04-11 13:10:00,WKSTN-09,tbrady,3,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,explorer.exe,C:\Windows\explorer.exe,,40.101.32.10,443,,,Normal HTTPS connection to Microsoft
+2026-04-11 13:15:00,WKSTN-09,tbrady,11,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,explorer.exe,C:\Windows\explorer.exe,,,C:\Users\tbrady\Downloads\invoice_april.exe,,File downloaded via email attachment
+2026-04-11 13:16:00,WKSTN-09,tbrady,1,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,invoice_april.exe,,,,,Unauthorised executable launched from Downloads
+2026-04-11 13:16:10,WKSTN-09,tbrady,3,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,,91.108.4.200,8080,,,Suspicious outbound connection from executable
+2026-04-11 13:16:20,WKSTN-09,tbrady,11,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,outlook.exe,C:\Program Files\Microsoft Office\outlook.exe,,,C:\Users\tbrady\AppData\Roaming\winupdate.exe,,Malware dropped in AppData
+2026-04-11 13:16:30,WKSTN-09,tbrady,1,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,winupdate.exe,,,,,Malicious child process launched
+2026-04-11 13:16:40,WKSTN-09,tbrady,3,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,,91.108.4.200,8080,,,Malicious process connecting to C2
+2026-04-11 13:16:50,WKSTN-09,tbrady,13,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,,,, HKLM\Software\Microsoft\Windows\CurrentVersion\Run\winupdate,Persistence via registry run key
+2026-04-11 13:17:00,WKSTN-09,tbrady,1,cmd.exe,C:\Windows\System32\cmd.exe,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,cmd.exe /c whoami,,,,,Reconnaissance command
+2026-04-11 13:17:10,WKSTN-09,tbrady,1,cmd.exe,C:\Windows\System32\cmd.exe,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,cmd.exe /c systeminfo,,,,,System information gathering
+2026-04-11 13:17:20,WKSTN-09,tbrady,1,cmd.exe,C:\Windows\System32\cmd.exe,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,cmd.exe /c net user,,,,,User enumeration
+2026-04-11 13:17:30,WKSTN-09,tbrady,1,cmd.exe,C:\Windows\System32\cmd.exe,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,cmd.exe /c tasklist,,,,,Process enumeration
+2026-04-11 13:18:00,WKSTN-09,tbrady,3,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,,10.0.0.5,445,,,Lateral movement attempt to domain controller
+2026-04-11 13:20:00,WKSTN-09,tbrady,3,winupdate.exe,C:\Users\tbrady\AppData\Roaming\winupdate.exe,invoice_april.exe,C:\Users\tbrady\Downloads\invoice_april.exe,,10.0.0.20,445,,,Lateral movement attempt to file server
