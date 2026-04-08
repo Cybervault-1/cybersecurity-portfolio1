@@ -26,6 +26,7 @@ browser download through C2 communication, persistence creation,
 reconnaissance and lateral movement attempt.
 
 [View Case 01](case-01-suspicious-process/README.md)
+- [Download Log File](case-01-suspicious-process/logs/sysmon-logs.csv)
 
 ---
 
@@ -36,3 +37,4 @@ traced the attack from initial execution through C2 communication,
 persistence, reconnaissance and lateral movement to two internal servers.
 
 [View Case 02](case-02-unauthorized-execution/README.md)
+[Download Log File](case-02-unauthorized-execution/logs/unauthorized-execution-logs.csv)
