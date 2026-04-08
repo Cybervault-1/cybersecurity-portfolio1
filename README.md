@@ -96,6 +96,7 @@ sending infrastructure and analysing malicious links safely.
 ### 💻 Endpoint Analysis
 
 - [Case 01 — Suspicious Process Detection](06-endpoint-analysis/case-01-suspicious-process/README.md)
+- [Case 02 — Unauthorized Program Execution](06-endpoint-analysis/case-02-unauthorized-execution/README.md)
 ---
 
 ### 🌐 Threat Intelligence
