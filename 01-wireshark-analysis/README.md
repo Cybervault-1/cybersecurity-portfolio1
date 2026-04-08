@@ -10,6 +10,7 @@ discovery patterns with no successful resolution indicating potential
 command and control beaconing behaviour.
 
 [View Case 01](case-01-malware-beaconing/README.md)
+- [Download PCAP File](case-01-malware-beaconing/logs/)
 
 ---
 
@@ -19,3 +20,4 @@ archives including VNC remote access tools from external servers using
 a fake browser identity to evade detection.
 
 [View Case 02](case-02-http-malware/README.md)
+- [Download PCAP File](case-02-http-malware/logs/2020-12-31-traffic-analysis-exercise-quiz-01.pcap)
