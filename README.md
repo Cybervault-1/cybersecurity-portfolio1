@@ -2,7 +2,7 @@
 
 # Adetayo Adedeji
 ### Aspiring SOC Analyst
-📍 Lagos, Nigeria | Open to SOC Analyst roles
+📍 Lagos, Nigeria | Open to SOC Analyst roles.
 
 I am an aspiring SOC Analyst with hands-on experience investigating 
 real-world attack scenarios using industry standard security tools. 
@@ -14,12 +14,6 @@ raw log data, working through a realistic investigation scenario, and
 producing a professional report documenting findings, IOCs and 
 recommended actions. The goal was not just to learn tools but to think 
 and work like a real Tier 1 SOC analyst.
-
-I completed the following certifications on Coursera and have since 
-been building practical skills through self-directed lab work covering 
-the core responsibilities of a SOC analyst role:
-
-- Google Cybersecurity Certificate — Coursera
 
 ---
 
