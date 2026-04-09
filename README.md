@@ -1,6 +1,8 @@
 ## 👋 About Me
 
 # Adetayo Adedeji
+### Aspiring SOC Analyst
+📍 Lagos, Nigeria | Open to SOC Analyst roles
 I am an aspiring SOC Analyst with hands-on experience investigating 
 real-world attack scenarios using industry standard security tools. 
 My work focuses on network traffic analysis, SIEM-based threat detection, 
