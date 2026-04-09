@@ -9,7 +9,7 @@ real-world attack scenarios using industry standard security tools.
 My work focuses on network traffic analysis, SIEM-based threat detection, 
 incident response and threat intelligence enrichment.
 
-Every project in this portfolio was built from scratch — starting with 
+Every project in this portfolio was built from scratch, starting with 
 raw log data, working through a realistic investigation scenario, and 
 producing a professional report documenting findings, IOCs and 
 recommended actions. The goal was not just to learn tools but to think 
