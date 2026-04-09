@@ -121,12 +121,19 @@ across domain, IP and file hash investigations.
 
 ## 🏆 Certifications
 
+All certifications were completed as part of the **Google Cybersecurity
+Certificate** program on Coursera — a professional level program covering
+the core skills required for entry level cybersecurity roles.
+
 ### Google Cybersecurity Professional Certificate
 ![Google Cybersecurity Professional Certificate](Certifications/google-cybersecurity-professional-certificate.png)
 
 🔗 [Verify Certificate](https://coursera.org/verify/professional-cert/6WSDVPZVYGEM)
 
+---
+
 **Individual Courses Completed:**
+
 - Foundations of Cybersecurity — [Verify](https://coursera.org/verify/T1D5RLMIWQRW)
 - Play It Safe: Manage Security Risk — [Verify](https://coursera.org/verify/4M8WDZ72PV63)
 - Connect and Protect: Networks and Network Security — [Verify](https://coursera.org/verify/WFBA75LIEIHF)
