@@ -1,65 +1,82 @@
+# Automated Security Audit Tool
 
+## Scenario
 
-## 📋 Scenario
+Following a two-week contractor engagement at **NexaCore Technologies**, the internal security team flagged anomalous activity on a critical Linux server — including unrecognised user accounts, unauthorised services, and unusual system configurations. A post-access security audit was initiated to assess the integrity of the system before it was returned to production.
 
-You've just joined **NexaCore Technologies** as a Security Analyst. On your first day, your manager pulls you aside.
-
-> *"We had a contractor working on this Linux server for the past two weeks. He's gone now, but before he left, one of our engineers noticed some strange behaviour — unfamiliar user accounts, unusual open ports, and services running that nobody recognises. We don't have time to check it manually. I need you to build a script that automatically audits this server and gives us a full security report."*
-
-Your job: build an automated script that scans the server for security risks and produces a structured report for the security team.
+As the Security Analyst assigned to the case, the objective was to develop an automated audit tool capable of systematically enumerating system security posture, identifying misconfigurations, and producing a structured report for the incident response team.
 
 ---
 
-## 🎯 Objective
+## Objective
 
-Develop a bash script that systematically audits a Linux system across 8 security categories and automatically generates a timestamped report.
+Design and deploy a bash-based security audit script that automates the enumeration of a Linux system across eight critical security domains, reduces manual investigation time, and outputs a timestamped, structured report suitable for security team review and incident documentation.
 
 ---
 
-## 🛠️ Tools & Technologies
+## Script Overview
 
-| Tool | Purpose |
+The audit script performs sequential enumeration across eight security categories using native Linux tools. Each section writes output simultaneously to the terminal and to a timestamped report file using the `tee` command, ensuring a complete audit trail.
+
+| Command | Purpose |
 |---|---|
-| Kali Linux | Operating environment |
-| Bash Scripting | Script development |
-| `uname` / `hostname` | System identification |
-| `who` / `cat /etc/passwd` | User enumeration |
-| `grep` | Privilege detection |
-| `ss` | Network port scanning |
-| `systemctl` | Service enumeration |
-| `find` | File permission auditing |
+| `uname -a` / `hostname` | System fingerprinting |
+| `who` | Active session detection |
+| `cat /etc/passwd` / `cut` | Full user account enumeration |
+| `grep` against `/etc/group` | Privilege escalation surface mapping |
+| `ss -tuln` | Exposed network port detection |
+| `systemctl list-units` | Running service enumeration |
+| `find` with `-perm -0002` | World-writable file detection |
+| `find` with `-perm -4000` | SUID binary identification |
+
+The script uses `tee -a` to append each section to a persistent report file, enabling offline analysis and documentation after execution.
 
 ---
 
-## 🔍 What the Script Audits
+## Audit Findings — NexaCore Server
 
-| # | Section | Description |
-|---|---|---|
-| 1 | System Information | OS version, kernel, hostname |
-| 2 | Logged In Users | Active sessions on the system |
-| 3 | All User Accounts | Every account registered on the machine |
-| 4 | Sudo/Root Privileges | Accounts with elevated access |
-| 5 | Open Ports | Exposed network ports |
-| 6 | Running Services | All active background services |
-| 7 | World-Writable Files | Files any user can modify — security risk |
-| 8 | SUID Files | Files that execute with root privileges |
+| Finding | Risk Level | Why It Matters | Recommendation |
+|---|---|---|---|
+| 50+ user accounts detected | Medium | Large attack surface; legacy or orphaned accounts may be leveraged for unauthorised access | Conduct user access review; disable or remove inactive accounts |
+| kali and Cybervault hold sudo privileges | Medium | Multiple sudo-enabled accounts increase privilege escalation risk | Apply principle of least privilege; restrict sudo to authorised administrators only |
+| No exposed network ports | Low | Reduces external attack surface; no immediate network-based threat vector identified | Maintain current firewall and port management policy |
+| 18 active services running | Medium | Unnecessary services increase attack surface and persistence opportunities | Audit each service; disable non-essential services |
+| No world-writable files detected | Low | Eliminates a common vector for unauthorised file modification or script injection | Maintain regular permission audits |
+| SUID binaries identified — kismet, fusermount3, ssh-keysign | Medium | SUID binaries can be abused for local privilege escalation if misconfigured or vulnerable | Review SUID binaries against approved baseline; remove unnecessary SUID flags |
 
 ---
 
-## 📊 Audit Findings — NexaCore Server
+## Analyst Interpretation
 
-| Finding | Detail | Risk Level |
-|---|---|---|
-| User Accounts | 50+ accounts found including mysql, redis, postgres | ⚠️ Medium |
-| Sudo Access | kali and Cybervault have sudo privileges | ⚠️ Medium |
-| Open Ports | No exposed ports detected | ✅ Low |
-| Running Services | 18 active services detected | ⚠️ Medium |
-| World-Writable Files | None detected | ✅ Low |
-| SUID Files | Multiple found — kismet, fusermount3, ssh-keysign | ⚠️ Medium |
+**Privilege Escalation Risk**
+Two accounts holding sudo privileges on a server recently accessed by an external contractor represents an elevated risk. Any account compromise — particularly through credential theft or brute force — could result in full root-level access and complete system compromise.
+
+**Attack Surface — Running Services**
+Eighteen active services were identified at the time of audit. Each running service represents a potential entry point. Services such as `mysql`, `redis`, and `postgres` detected during enumeration should be reviewed to confirm they are required, patched, and not externally accessible.
+
+**SUID Binary Abuse**
+SUID files execute with the privileges of the file owner rather than the user running them. Tools such as `kismet` holding SUID flags present a potential local privilege escalation vector, particularly if the binary contains known vulnerabilities or is accessible to low-privileged users.
+
+**Contractor Access Review**
+Given the context of this audit — a post-contractor system review — particular attention should be paid to any accounts, services, or scheduled tasks created during the engagement period that fall outside approved configurations.
 
 ---
 
-## 🚀 How to Run
+## Skills Demonstrated
+
+- Linux Security Auditing
+- System Enumeration and Reconnaissance
+- Privilege Escalation Detection
+- Network Exposure Analysis
+- File Permission Auditing
+- SUID Binary Analysis
+- Bash Scripting and Automation
+- Security Audit Reporting and Documentation
+- Incident Response Support
+
+---
+
+## How to Run
 
 ```bash
 # Clone the repository
@@ -75,33 +92,32 @@ chmod +x scripts/security_audit.sh
 ./scripts/security_audit.sh
 ```
 
-The script will print all findings to the terminal and automatically save a full report to the `reports/` folder.
+The script prints all findings to the terminal in real time and saves a complete timestamped report to the `reports/` directory upon completion.
 
 ---
 
-## 💡 Key Concepts Demonstrated
+## Future Improvements
 
-- Bash scripting and automation
-- Linux user and group management
-- File permission auditing
-- Network port analysis
-- Service monitoring
-- Security audit reporting
+- Integrate JSON output format for ingestion into SIEM platforms such as Microsoft Sentinel or Splunk
+- Implement automated alerting via email or Slack webhook when high-risk findings are detected
+- Add CVE cross-referencing for identified SUID binaries against the NIST NVD database
+- Schedule automated weekly audits using cron for continuous monitoring
+- Extend scope to include failed login attempts, SSH configuration review, and firewall rule analysis
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-### Script Running
+### Script Execution
 ![Script Running](screenshots/01-script-top.png)
 
-### Audit Complete
+### Audit Output
 ![Audit Complete](screenshots/02-script-bottom.png)
 
 ---
 
-## 👤 Author
+## Author
 
-**Cybervault**  
-Cybersecurity Analyst  
+**Cybervault**
+Cybersecurity Analyst
 [GitHub](https://github.com/Cybervault-1)
