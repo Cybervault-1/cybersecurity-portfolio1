@@ -96,6 +96,6 @@ The script prints all findings to the terminal in real time and saves a complete
 
 ## Author
 
-**Cybervault**
+**Adedeji adetayo**
 Cybersecurity Analyst
 [GitHub](https://github.com/Cybervault-1)
