@@ -59,20 +59,6 @@ Develop a bash script that systematically audits a Linux system across 8 securit
 
 ---
 
-## 📂 Project Structure
-08-linux-security-labs/
-└── 01-security-audit-tool/
-├── README.md
-├── scripts/
-│   └── security_audit.sh
-├── reports/
-│   └── audit_report_2026-04-15.txt
-└── screenshots/
-├── 01-script-top.png
-└── 02-script-bottom.png
-
----
-
 ## 🚀 How to Run
 
 ```bash
