@@ -36,7 +36,7 @@ The script uses `tee -a` to append each section to a persistent report file, ena
 | No exposed network ports | Low | Reduces external attack surface; no immediate network-based threat vector identified | Maintain current firewall and port management policy |
 | 18 active services running | Medium | Unnecessary services increase attack surface and persistence opportunities | Audit each service; disable non-essential services |
 | No world-writable files detected | Low | Eliminates a common vector for unauthorised file modification or script injection | Maintain regular permission audits |
-| SUID binaries identified — kismet, fusermount3, ssh-keysign | Medium | SUID binaries can be abused for local privilege escalation if misconfigured or vulnerable | Review SUID binaries against approved baseline; remove unnecessary SUID flags |
+| SUID binaries identified, kismet, fusermount3, ssh-keysign | Medium | SUID binaries can be abused for local privilege escalation if misconfigured or vulnerable | Review SUID binaries against approved baseline; remove unnecessary SUID flags |
 
 ## Analyst Interpretation
 
