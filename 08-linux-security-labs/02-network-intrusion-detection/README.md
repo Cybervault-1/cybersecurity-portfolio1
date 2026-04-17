@@ -10,17 +10,6 @@ As the Security Analyst assigned to the case, you were tasked with building a Ne
 
 Develop a bash-based network monitoring script that continuously enumerates active connections, detects suspicious behaviour across multiple attack vectors, and generates a timestamped log file for security team review.
 
-## Attack Simulation
-
-To validate the detection capability of the script, controlled attack simulations were performed in an isolated lab environment against localhost.
-
-| Attack | Tool | Target |
-|---|---|---|
-| Port Scan | nmap | 127.0.0.1 |
-| SSH Brute Force | hydra | 127.0.0.1:22 |
-
-All simulations were conducted in a safe, isolated environment with no impact on external systems or networks.
-
 ## Script Overview
 
 The monitoring script performs sequential enumeration across eight network security categories using native Linux tools.
@@ -36,12 +25,53 @@ The monitoring script performs sequential enumeration across eight network secur
 | `uniq -c` with `sort -rn` | Top talker identification |
 | `cat /proc/net/dev` | Network interface traffic statistics |
 
+## Step 1 — Baseline Scan
+
+Before any attacks were simulated, the monitoring script was executed to capture a clean baseline of the system's normal network state. This provides a reference point for comparison after the attacks.
+
+![Baseline Scan](screenshots/01-baseline.png)
+
+## Step 2 — Attack Simulation
+
+To validate the detection capability of the script, controlled attack simulations were performed in an isolated lab environment against localhost.
+
+| Attack | Tool | Target |
+|---|---|---|
+| Port Scan | nmap | 127.0.0.1 |
+| SSH Brute Force | hydra | 127.0.0.1:22 |
+
+All simulations were conducted in a safe, isolated environment with no impact on external systems or networks.
+
+### Port Scan
+
+A full port scan was launched against localhost using nmap to simulate a reconnaissance attack.
+
+![Port Scan Attack](screenshots/02-portscan-attack.png)
+
+### Brute Force Wordlist
+
+A custom wordlist containing commonly used passwords was created for use in the brute force simulation.
+
+![Wordlist](screenshots/03-wordlist.png)
+
+### SSH Brute Force
+
+Hydra was used to launch a credential brute force attack against the SSH service running on localhost using the wordlist.
+
+![Brute Force Attack](screenshots/04-bruteforce-attack.png)
+
+## Step 3 — Detection Results
+
+Following the simulated attacks, the monitoring script was executed again to capture and log all suspicious activity detected on the system.
+
+![Detection Results](screenshots/05-detection-results.png)
+
 ## Findings — Post Attack Simulation
 
 | Finding | Risk Level | Why It Matters | Recommendation |
 |---|---|---|---|
 | SSH port 22 listening | Medium | Exposes SSH service to brute force and credential attacks | Restrict SSH access to authorised IPs using firewall rules |
-| Brute force attempts detected on SSH | High | 8 login attempts using common passwords — clear credential attack | Implement fail2ban, disable root SSH login, enforce key-based authentication |
+| Brute force attempts detected on SSH | High | 8 login attempts using common passwords | Implement fail2ban, disable root SSH login, enforce key-based authentication |
 | Active outbound connections to 34.107.243.93 | Medium | Unrecognised external IP with established connection | Investigate IP reputation and verify connection legitimacy |
 | No port scan activity detected | Low | Port scan threshold not triggered during simulation | Lower detection threshold for increased sensitivity |
 
@@ -85,23 +115,6 @@ The script prints all findings to the terminal in real time and saves a complete
 - Add IP reputation lookup against threat intelligence feeds
 - Export findings in JSON format for SIEM ingestion
 - Extend detection to include ICMP flood and SYN scan identification
-
-## Screenshots
-
-### Baseline Scan — Clean System
-![Baseline](screenshots/01-baseline.png)
-
-### Attack Simulation — Port Scan
-![Port Scan](screenshots/02-portscan-attack.png)
-
-### Attack Simulation — Brute Force Wordlist
-![Wordlist](screenshots/03-wordlist.png)
-
-### Attack Simulation — SSH Brute Force
-![Brute Force](screenshots/04-bruteforce-attack.png)
-
-### Detection Results — Post Attack
-![Detection](screenshots/05-detection-results.png)
 
 ## Author
 
