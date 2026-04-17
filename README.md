@@ -108,14 +108,12 @@ across domain, IP and file hash investigations.
 - [Case 01 — Domain Analysis](07-threat-intelligence/case-01-domain-analysis/README.md)
 - [Case 02 — IP Reputation Analysis](07-threat-intelligence/case-02-ip-reputation/README.md)
 - [Case 03 — File Hash Investigation](07-threat-intelligence/case-03-file-hash/README.md)
-
 ---
 
 ## 🐧 Linux Security Labs
 Automated security auditing and system hardening on Linux using bash scripting, system enumeration, and security analysis.
 
 - [Project 01 — Automated Security Audit Tool](08-linux-security-labs/01-security-audit-tool/README.md)
-
 ---
 
 ## 🏆 Certifications
