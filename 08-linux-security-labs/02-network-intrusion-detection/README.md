@@ -29,6 +29,10 @@ The monitoring script performs sequential enumeration across eight network secur
 
 Before any attacks were simulated, the monitoring script was executed to capture a clean baseline of the system's normal network state. This provides a reference point for comparison after the attacks.
 
+```bash
+./scripts/network_monitor.sh
+```
+
 ![Baseline Scan](screenshots/01-baseline.png)
 
 ## Step 2 — Attack Simulation
@@ -46,11 +50,19 @@ All simulations were conducted in a safe, isolated environment with no impact on
 
 A full port scan was launched against localhost using nmap to simulate a reconnaissance attack.
 
+```bash
+sudo nmap -sS -p 1-1000 127.0.0.1
+```
+
 ![Port Scan Attack](screenshots/02-portscan-attack.png)
 
 ### Brute Force Wordlist
 
 A custom wordlist containing commonly used passwords was created for use in the brute force simulation.
+
+```bash
+cat ~/wordlist.txt
+```
 
 ![Wordlist](screenshots/03-wordlist.png)
 
@@ -58,11 +70,19 @@ A custom wordlist containing commonly used passwords was created for use in the 
 
 Hydra was used to launch a credential brute force attack against the SSH service running on localhost using the wordlist.
 
+```bash
+hydra -l root -P ~/wordlist.txt ssh://127.0.0.1 -t 4 -V
+```
+
 ![Brute Force Attack](screenshots/04-bruteforce-attack.png)
 
 ## Step 3 — Detection Results
 
 Following the simulated attacks, the monitoring script was executed again to capture and log all suspicious activity detected on the system.
+
+```bash
+sudo ./scripts/network_monitor.sh
+```
 
 ![Detection Results](screenshots/05-detection-results.png)
 
