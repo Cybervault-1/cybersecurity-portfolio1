@@ -110,7 +110,7 @@ across domain, IP and file hash investigations.
 - [Case 03 — File Hash Investigation](07-threat-intelligence/case-03-file-hash/README.md)
 ---
 
-## 🐧 Linux Security Labs
+### 🐧 Linux Security Labs
 Automated security auditing and system hardening on Linux using bash scripting, system enumeration, and security analysis.
 
 - [Project 01 — Automated Security Audit Tool](08-linux-security-labs/01-security-audit-tool/README.md)
