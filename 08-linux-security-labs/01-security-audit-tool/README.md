@@ -56,7 +56,9 @@ The script was executed against the NexaCore server to perform a full security a
 
 ![Script Execution Top](screenshots/01-script-top.png)
 
-![Script Execution Bottom](screenshots/02-script-bottom.png)
+![Script Execution Middle](screenshots/02-script-middle.png)
+
+![Script Execution Bottom](screenshots/03-script-bottom.png)
 
 ## Audit Findings — NexaCore Server
 
